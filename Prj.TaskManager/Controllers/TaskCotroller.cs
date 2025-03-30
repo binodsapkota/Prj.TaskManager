@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Prj.TaskManager.Data;
+using Prj.TaskManager.Filters;
 using Prj.TaskManager.Models;
 
 namespace Prj.TaskManager.Controllers
 {
-    
+    [CustomAuthorize(roles:"admin")]
     public class TaskController : Controller
     {
         readonly AppDbContext _context;

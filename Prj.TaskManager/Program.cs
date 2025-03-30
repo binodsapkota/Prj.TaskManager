@@ -3,6 +3,8 @@ using Prj.TaskManager.Data;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Prj.TaskManager.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Prj.TaskManager;
 ;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,12 +17,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-{
-    options.SignIn.RequireConfirmedPhoneNumber = false;
-    options.SignIn.RequireConfirmedEmail = false;
-    options.SignIn.RequireConfirmedAccount = false;
-}).AddEntityFrameworkStores<AppDbContext>();
+//builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+//{
+//    options.SignIn.RequireConfirmedPhoneNumber = false;
+//    options.SignIn.RequireConfirmedEmail = false;
+//    options.SignIn.RequireConfirmedAccount = false;
+//}).AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.AddScoped<AuthService>();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/NoPermission";
+    });
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
