@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Prj.TaskManager.Data;
 using Prj.TaskManager.Models;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Prj.TaskManager
+namespace Prj.TaskManager.Service
 {
-    public class AuthService
+    public class AuthService: IAuthService
     {
         private readonly AppDbContext _context;
         public AuthService(AppDbContext appDbContext)
@@ -35,6 +37,7 @@ namespace Prj.TaskManager
             {
                 new Claim(ClaimTypes.Name, userName),
                 new Claim(ClaimTypes.Role, user.Role)
+               
             };
             ///session store
             var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -52,16 +55,26 @@ namespace Prj.TaskManager
 
             return true;
         }
+
+
+        public async Task<UserModel> Register(UserModel model,string password)
+        {
+            model.PasswordHash = HashPassword(password);
+            _context.Users.Add(model);
+            await _context.SaveChangesAsync();//await waits for result and proceed to next line
+            //if you dont use await it will not wait for completion
+            return model;
+        }
         public async Task Logout(HttpContext httpContext)
         {
-           await httpContext.SignOutAsync();
+            await httpContext.SignOutAsync();
         }
         private bool VerifyPassword(string inputPassword, string passwordHash)
         {
             return HashPassword(inputPassword) == passwordHash;
         }
 
-        public string HashPassword(string password)
+        private string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();
             var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));

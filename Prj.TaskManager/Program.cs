@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Prj.TaskManager.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Prj.TaskManager;
+using Prj.TaskManager.Service;
 ;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,8 +24,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 //    options.SignIn.RequireConfirmedAccount = false;
 //}).AddEntityFrameworkStores<AppDbContext>();
 
-builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IAuthService,AuthService>();//register
 
+builder.Services.AddScoped<ITaskService, TaskService>();//register
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {

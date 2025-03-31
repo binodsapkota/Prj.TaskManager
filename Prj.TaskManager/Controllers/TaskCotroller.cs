@@ -4,21 +4,24 @@ using Microsoft.EntityFrameworkCore;
 using Prj.TaskManager.Data;
 using Prj.TaskManager.Filters;
 using Prj.TaskManager.Models;
+using Prj.TaskManager.Service;
 
 namespace Prj.TaskManager.Controllers
 {
-    [CustomAuthorize(roles:"admin")]
+    [CustomAuthorize(roles: "user")]
     public class TaskController : Controller
     {
-        readonly AppDbContext _context;
-        public TaskController(AppDbContext appDbContext)
+
+        private readonly ITaskService _taskService;
+        public TaskController(ITaskService taskService)
         {
-            _context = appDbContext;
+            _taskService = taskService;
+
         }
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var data = await _context.Tasks.ToListAsync();
+            var data = await _taskService.GetAllTasks();
             return View(data);
         }
         [HttpGet]
@@ -32,8 +35,7 @@ namespace Prj.TaskManager.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Tasks.Add(model);
-                var result = await _context.SaveChangesAsync();
+                var result = await _taskService.Create(model);
                 TempData["message"] = "Task Added";
                 return RedirectToAction("Index");
 
@@ -42,41 +44,40 @@ namespace Prj.TaskManager.Controllers
         }
 
         [HttpGet]
-        public IActionResult Detail(int id)
+        public async Task<IActionResult> Detail(int id)
         {
-            var task = _context.Tasks.SingleOrDefault(  x => x.Id == id);
+            var task = await _taskService.GetTask(id);
             return View(task);
         }
         [HttpGet]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var task = _context.Tasks.SingleOrDefault(x => x.Id == id);
+            var task = await _taskService.GetTask(id);
             return View(task);
         }
         [HttpPost("Delete")]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var task = _context.Tasks.SingleOrDefault(x => x.Id == id);
-            return View(task);
+            await _taskService.Delete(id);
+            return RedirectToAction("index");
         }
 
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var task = _context.Tasks.SingleOrDefault(x => x.Id == id);
+            var task = _taskService.GetTask(id).Result;
             return View(task);
         }
         [HttpPost]
-        public IActionResult Edit(int id,TaskItemModel model)
+        public async Task<IActionResult> Edit(int id, TaskItemModel model)
         {
-            if (id != model.Id ||ModelState.IsValid==false)
+            if (id != model.Id || ModelState.IsValid == false)
             {
                 return View(model);
             }
-            
 
-            _context.Tasks.Update(model);   
-            _context.SaveChanges();
+
+            await _taskService.Update(model);
             TempData["message"] = "task updated";
             return RedirectToAction("Index");
         }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Prj.TaskManager.Data;
 using Prj.TaskManager.Models;
+using Prj.TaskManager.Service;
 
 namespace Prj.TaskManager.Controllers
 {
@@ -27,9 +28,32 @@ namespace Prj.TaskManager.Controllers
             }
             return View(model);
         }
-        public IActionResult Logout()
+        [HttpGet]
+        public IActionResult Register()
         {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new UserModel()
+                {
+                    UserName = model.UserName,
+                    Role = model.Role,
+                   
+                };
 
+                var result = await _authService.Register(user,model.Password);
+                return RedirectToAction("login");
+            }
+
+            return View();
+        }
+        public async Task<IActionResult> Logout()
+        {
+            await _authService.Logout(HttpContext);
             return RedirectToAction("Login");
         }
 
