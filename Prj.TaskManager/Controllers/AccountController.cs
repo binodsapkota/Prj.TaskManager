@@ -8,11 +8,13 @@ namespace Prj.TaskManager.Controllers
     public class AccountController : Controller
     {
         private readonly AuthService _authService;
-        private readonly AppDbContext _appDbContext;
-        public AccountController(AuthService authService, AppDbContext appDbContext)
+        
+        private readonly EmailService _emailService;
+        public AccountController(AuthService authService, EmailService emailService)
         {
             _authService = authService;
-            _appDbContext = appDbContext;
+            
+           _emailService = emailService;
         }
         public IActionResult Login()
         {
@@ -42,10 +44,17 @@ namespace Prj.TaskManager.Controllers
                 {
                     UserName = model.UserName,
                     Role = model.Role,
-                   
+                    Email=model.Email
                 };
 
-                var result = await _authService.Register(user,model.Password);
+                user.EmailConfirmationToken = Guid.NewGuid().ToString();//random token to validate email
+
+                var result = await _authService.Register(user, model.Password);
+
+                var link = Url.Action("ConfirmEmail", "Account", new { token = user.EmailConfirmationToken }, Request.Scheme);
+
+                await _emailService.SendEmail2Async(user.Email, "Confirm Your Email", $"Click <a href='{link}'>here</a> to confirm your email.");
+
                 return RedirectToAction("login");
             }
 
@@ -55,6 +64,16 @@ namespace Prj.TaskManager.Controllers
         {
             await _authService.Logout(HttpContext);
             return RedirectToAction("Login");
+        }
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string token)
+        {
+            var confirmation = await _authService.ConfirmEmail(token);
+            if (confirmation)
+            {
+                return RedirectToAction("login");
+            }
+            return NotFound("Invalid Token");
         }
 
         public IActionResult NoPermission()

@@ -25,7 +25,10 @@ namespace Prj.TaskManager.Data
                     Id = 1,
                     UserName = "admin",
                     PasswordHash = HashPassword("password"),
-                    Role = "admin"
+                    Role = "admin",
+                    Email = "binod@riddhasoft.com",
+                    EmailConfirmationToken="",
+                    IsEmailConfirmed=true,
                 }
                 );
         }

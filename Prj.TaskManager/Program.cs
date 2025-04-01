@@ -24,9 +24,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 //    options.SignIn.RequireConfirmedAccount = false;
 //}).AddEntityFrameworkStores<AppDbContext>();
 
-builder.Services.AddScoped<IAuthService,AuthService>();//register
+builder.Services.AddScoped<AuthService>();//register
 
 builder.Services.AddScoped<ITaskService, TaskService>();//register
+builder.Services.AddScoped<EmailService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {

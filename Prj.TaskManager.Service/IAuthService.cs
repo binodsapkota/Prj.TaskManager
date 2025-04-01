@@ -13,5 +13,6 @@ namespace Prj.TaskManager.Service
         Task<bool> AuthenticateUser(HttpContext httpContext, string userName, string password);
         Task<UserModel> Register(UserModel model, string password);
         Task Logout(HttpContext httpContext);
+        Task<bool> ConfirmEmail(string token);
     }
 }

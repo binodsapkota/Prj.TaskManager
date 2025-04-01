@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Prj.TaskManager.Data;
 using Prj.TaskManager.Models;
 using System.Runtime.CompilerServices;
@@ -10,7 +11,7 @@ using System.Text;
 
 namespace Prj.TaskManager.Service
 {
-    public class AuthService: IAuthService
+    public class AuthService : IAuthService
     {
         private readonly AppDbContext _context;
         public AuthService(AppDbContext appDbContext)
@@ -37,7 +38,7 @@ namespace Prj.TaskManager.Service
             {
                 new Claim(ClaimTypes.Name, userName),
                 new Claim(ClaimTypes.Role, user.Role)
-               
+
             };
             ///session store
             var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -57,7 +58,7 @@ namespace Prj.TaskManager.Service
         }
 
 
-        public async Task<UserModel> Register(UserModel model,string password)
+        public async Task<UserModel> Register(UserModel model, string password)
         {
             model.PasswordHash = HashPassword(password);
             _context.Users.Add(model);
@@ -79,6 +80,20 @@ namespace Prj.TaskManager.Service
             using var sha256 = SHA256.Create();
             var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
             return Convert.ToBase64String(hashedBytes);
+        }
+
+        public async Task<bool> ConfirmEmail(string token)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.EmailConfirmationToken == token);
+            if (user == null) { return false; }
+
+            user.IsEmailConfirmed = true;
+            user.EmailConfirmationToken = "";
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            return true;
+
         }
     }
 }
