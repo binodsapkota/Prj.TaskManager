@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Prj.TaskManager.Data;
+using Prj.TaskManager.Filters;
 using Prj.TaskManager.Models;
 using Prj.TaskManager.Service;
 
@@ -23,10 +25,14 @@ namespace Prj.TaskManager.Controllers
         [HttpPost]
         public IActionResult Login(LoginModel model)
         {
-            var result = _authService.AuthenticateUser(HttpContext, model.UserName, model.Password).Result;
-            if (result)
+            if (ModelState.IsValid)
             {
-                return RedirectToAction("Index", "Home");
+                var result = _authService.AuthenticateUser(HttpContext, model.UserName, model.Password).Result;
+                if (result)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                
             }
             return View(model);
         }
@@ -36,6 +42,7 @@ namespace Prj.TaskManager.Controllers
             return View();
         }
         [HttpPost]
+        [CustomAuthorize]
         public async Task<IActionResult> Register(RegisterModel model)
         {
             if (ModelState.IsValid)

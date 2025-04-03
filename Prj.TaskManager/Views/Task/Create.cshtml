@@ -8,7 +8,7 @@
 
 <h1>Create new task</h1>
 
-<form method="post" asp-action="Create" class="form">
+<form method="post" asp-action="Create" class="form" enctype="multipart/form-data">
     <div>
         <label asp-for="Title" class="form-label"></label>
         <input asp-for="Title" class="form-control" />
@@ -23,6 +23,11 @@
         <label asp-for="IsCompleted" class="form-label"></label>
         <input type="checkbox" asp-for="IsCompleted"  />
         <span asp-validation-for="IsCompleted"></span>
+    </div>
+    <div>
+        <label for="taskFile" class="form-label">Upload File</label>
+        <input type="file" name="TaskFile" class="form-control" />
+        
     </div>
 
     <button type="submit">Create</button>

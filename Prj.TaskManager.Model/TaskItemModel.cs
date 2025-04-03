@@ -10,5 +10,10 @@ namespace Prj.TaskManager.Models
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        /// <summary>
+        /// store relative path for file uploaded
+        /// </summary>
+        public string? FilePath { get; set; }
     }
 }

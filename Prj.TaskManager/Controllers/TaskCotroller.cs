@@ -31,10 +31,23 @@ namespace Prj.TaskManager.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(TaskItemModel model)
+        public async Task<IActionResult> Create(TaskItemModel model,IFormFile? TaskFile)
         {
             if (ModelState.IsValid)
             {
+                //file storage path 
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", TaskFile.FileName);
+
+                //save file to the location
+
+                using (var stream=new FileStream(filePath,FileMode.Create))
+                {
+                    await TaskFile.CopyToAsync(stream);//this will write file content to new file
+                }
+
+                //asign relative path 
+                model.FilePath = "/uploads/"+TaskFile.FileName;
+
                 var result = await _taskService.Create(model);
                 TempData["message"] = "Task Added";
                 return RedirectToAction("Index");

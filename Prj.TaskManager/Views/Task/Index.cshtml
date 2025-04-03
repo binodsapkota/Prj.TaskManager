@@ -11,6 +11,7 @@
             <th>Title</th>
             <th>Description</th>
             <th>IsCompleted</th>
+            <th>file</th>
             <th></th>
         </tr>
 
@@ -29,6 +30,9 @@
                     else{
                         <span>No</span>
                     }
+                </td>
+                <td>
+                    <a class="btn btn-primary" href="@item.FilePath">File</a>
                 </td>
                 <td>
                     <a class="btn btn-primary" asp-controller="Task" asp-action="Edit" asp-route-id="@item.Id" >Edit</a>

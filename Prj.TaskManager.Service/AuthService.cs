@@ -21,7 +21,7 @@ namespace Prj.TaskManager.Service
 
         public async Task<bool> AuthenticateUser(HttpContext httpContext, string userName, string password)
         {
-            var user = _context.Users.FirstOrDefault(u => u.UserName == userName);
+            var user = _context.Users.FirstOrDefault(u => u.UserName == userName && u.IsEmailConfirmed==true);
             if (user == null)
             {
                 return false;
@@ -44,7 +44,7 @@ namespace Prj.TaskManager.Service
             var claimIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             //persistent cookie/login
 
-            var authProperties = new AuthenticationProperties() { IsPersistent = true };
+            var authProperties = new AuthenticationProperties() { IsPersistent = false };
 
 
             await httpContext.SignInAsync(
